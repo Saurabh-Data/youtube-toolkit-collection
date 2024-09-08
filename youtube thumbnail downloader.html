@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Thumbnail Downloader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('https://example.com/background-image.jpg'); /* Replace 'https://example.com/background-image.jpg' with your desired background image URL */
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    input {
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #thumbnailContainer {
+      margin-top: 20px;
+    }
+
+    .thumbnail {
+      margin-bottom: 10px;
+    }
+
+    .thumbnail img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Paste YouTube link and click the download button</h1>
+    <p>Click the photo, then right-click and select "Save image as" to download.</p>
+    <input type="text" id="youtubeUrl" placeholder="Enter YouTube Video URL">
+    <button onclick="downloadThumbnail()">Download Thumbnail</button>
+    <div id="thumbnailContainer"></div>
+  </div>
+  <script>
+    function downloadThumbnail() {
+      const youtubeUrl = document.getElementById("youtubeUrl").value;
+      const videoId = extractVideoId(youtubeUrl);
+      if (videoId) {
+        const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        const thumbnailElement = document.createElement("div");
+        thumbnailElement.classList.add("thumbnail");
+        thumbnailElement.innerHTML = `<img src="${thumbnailUrl}" alt="YouTube Thumbnail">`;
+        document.getElementById("thumbnailContainer").appendChild(thumbnailElement);
+      } else {
+        alert("Invalid YouTube URL. Please enter a valid URL.");
+      }
+    }
+
+    function extractVideoId(url) {
+      const videoIdRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(videoIdRegex);
+      return match ? match[1] : null;
+    }
+  </script>
+</body>
+</html>
+
