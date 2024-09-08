@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Video Keyword Generator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-image: url('background.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    #container {
+        max-width: 600px;
+        margin: 50px auto;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    textarea {
+        width: calc(100% - 22px);
+        height: 200px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+    button {
+        display: block;
+        margin: 0 auto;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    #keywords {
+        width: calc(100% - 22px);
+        height: 100px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+    .highlight {
+        background-color: yellow;
+    }
+</style>
+</head>
+<body>
+    <div id="container">
+        <h1>YouTube Video Keyword Generator</h1>
+        <textarea id="inputText" placeholder="Enter a detailed description of your video here..."></textarea>
+        <button onclick="generateKeywords()">Generate Keywords</button>
+        <textarea id="keywords" readonly placeholder="Keywords will appear here..."></textarea>
+    </div>
+
+    <script>
+        async function generateKeywords() {
+            const inputText = document.getElementById('inputText').value.trim();
+            if (inputText === '') {
+                alert('Please enter a detailed description.');
+                return;
+            }
+
+            const phrases = extractKeyPhrases(inputText);
+            const keywords = await getRelatedKeywords(phrases);
+
+            const keywordsTextarea = document.getElementById('keywords');
+            keywordsTextarea.value = keywords.join(', ');
+
+            highlightKeywords(phrases);
+        }
+
+        function extractKeyPhrases(text) {
+            // Split text into sentences and remove punctuation
+            const sentences = text.match(/[^.!?]+[.!?]+/g);
+            if (!sentences) return [];
+
+            // Extract key phrases (first word of each sentence)
+            return sentences.map(sentence => {
+                const words = sentence.split(' ');
+                return words.length > 0 ? words[0] : '';
+            });
+        }
+
+        async function getRelatedKeywords(phrases) {
+            const similarKeywords = [];
+            for (const phrase of phrases) {
+                const response = await fetch(`https://api.datamuse.com/words?ml=${phrase}&max=3`);
+                const data = await response.json();
+                if (data.length > 0) {
+                    similarKeywords.push(...data.map(item => item.word));
+                } else {
+                    similarKeywords.push(phrase);
+                }
+            }
+            return similarKeywords;
+        }
+
+        function highlightKeywords(phrases) {
+            const inputText = document.getElementById('inputText');
+            let text = inputText.value;
+
+            phrases.forEach(phrase => {
+                const regex = new RegExp('\\b' + phrase + '\\b', 'gi');
+                text = text.replace(regex, `<span class="highlight">${phrase}</span>`);
+            });
+
+            inputText.innerHTML = text;
+        }
+    </script>
+</body>
+</html>
