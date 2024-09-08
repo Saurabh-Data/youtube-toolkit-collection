@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Topic Finder</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(to right, #43cea2, #185a9d);
+            animation: gradientAnimation 10s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .topic-suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-gap: 20px;
+        }
+
+        .topic {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .topic:hover {
+            transform: translateY(-5px);
+        }
+
+        .topic h2 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .topic p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+
+        .hashtag {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .more-info-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .more-info-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .watch-now-link {
+            display: block;
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .watch-now-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="text" class="search-input" placeholder="Enter search term...">
+        <div class="topic-suggestions">
+            <!-- Trending topics will be displayed here -->
+        </div>
+    </div>
+
+  <script>
+        // Add JavaScript functionality here
+        const API_KEY = 'AIzaSyC6JCpWwlAj3EmmJGtJ3JsqH73v8JjXnjQ';
+        const MAX_RESULTS = 10; // Number of trending topics to fetch
+         
+
+        const searchInput = document.querySelector('.search-input');
+        const topicSuggestions = document.querySelector('.topic-suggestions');
+
+        // Function to fetch trending topics using YouTube API search functionality
+        function fetchTrendingTopics(searchTerm = '') {
+            topicSuggestions.innerHTML = ''; // Clear previous results
+
+            fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&part=snippet&chart=mostPopular&maxResults=${MAX_RESULTS}&q=${searchTerm}&type=video`)
+                .then(response => response.json())
+                .then(data => {
+                    data.items.forEach(item => {
+                        const topic = item.snippet.title;
+                        const videoId = item.id.videoId;
+                        const thumbnail = item.snippet.thumbnails.medium.url;
+                        const description = item.snippet.description;
+                        const hashtags = ['#ViralVideo', '#TrendingNow', `#${topic.replace(/\s/g, '')}`];
+
+                        const topicElement = document.createElement('div');
+                        topicElement.classList.add('topic');
+                        topicElement.innerHTML = `
+                            <h2>${topic}</h2>
+                            <img src="${thumbnail}" alt="${topic}">
+                            <p>Description: ${description}</p>
+                            <p class="hashtag">${hashtags.join(' ')}</p>
+                            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="watch-now-link">Watch Now</a>
+                            <button class="more-info-btn">More Info</button>
+                        `;
+                        topicSuggestions.appendChild(topicElement);
+
+                        const moreInfoBtn = topicElement.querySelector('.more-info-btn');
+                        moreInfoBtn.addEventListener('click', () => {
+                            alert(`Title: ${topic}\nDescription: ${description}\nHashtags: ${hashtags.join(' ')}`);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Initial fetch with empty search term
+        fetchTrendingTopics();
+
+        // Event listener for search input
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.trim();
+            fetchTrendingTopics(searchTerm);
+        });
+    </script>
+
+</body>
+</html>
+
