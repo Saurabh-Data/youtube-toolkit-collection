@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Video Details</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-image: url('background.jpg');
+        background-size: cover;
+        background-position: center;
+    }
+    #container {
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+    }
+    input[type="text"] {
+        padding: 10px;
+        width: 300px;
+        margin-bottom: 10px;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    #result {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .video-thumbnail {
+        max-width: 300px;
+        margin-bottom: 10px;
+    }
+    h3, p {
+        margin: 5px 0;
+    }
+</style>
+</head>
+<body>
+<div id="container">
+    <h2>YouTube Video Details</h2>
+    <input type="text" id="youtubeUrl" placeholder="Enter YouTube Video URL">
+    <button onclick="extractInfo()">Extract</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    function extractInfo() {
+        var youtubeUrl = document.getElementById('youtubeUrl').value;
+        var videoId = youtube_parser(youtubeUrl);
+
+        if (videoId) {
+            var apiUrl = 'https://www.googleapis.com/youtube/v3/videos?id=' + videoId + '&key=AIzaSyDsJTFseY3hCb2PrwlxzxzwCON0tX3ACfM&part=snippet';
+
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                var thumbnailUrl = data.items[0].snippet.thumbnails.medium.url;
+                var title = data.items[0].snippet.title;
+                var description = data.items[0].snippet.description;
+                var resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `
+                    <img src="${thumbnailUrl}" alt="Video Thumbnail" class="video-thumbnail">
+                    <h3>Title:</h3>
+                    <p>${title}</p>
+                    <h3>Description:</h3>
+                    <p>${description}</p>`;
+            })
+            .catch(error => console.error('Error:', error));
+        } else {
+            document.getElementById('result').innerHTML = "<p>Please enter a valid YouTube video URL.</p>";
+        }
+    }
+
+    function youtube_parser(url){
+        var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        var match = url.match(regExp);
+        if (match && match[2].length === 11) {
+            return match[2];
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+</html>
