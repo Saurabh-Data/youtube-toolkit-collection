@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trending Topics Finder</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    margin-bottom: 8px;
+  }
+  input[type="text"] {
+    width: calc(100% - 80px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  .result {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    min-height: 50px;
+  }
+  .loading {
+    display: none;
+    margin-bottom: 10px;
+  }
+  .error {
+    color: red;
+    margin-top: 5px;
+  }
+  .trending-topic {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Trending Topics Finder</h1>
+  <label for="keyword">Enter Keyword:</label>
+  <div>
+    <input type="text" id="keyword" placeholder="Enter keyword">
+    <button onclick="findTrendingTopics()">Find</button>
+    <button onclick="clearResults()">Clear</button>
+  </div>
+  <div class="loading" id="loadingIndicator">Loading...</div>
+  <div class="result" id="result"></div>
+  <div class="error" id="error"></div>
+</div>
+
+<script>
+  function findTrendingTopics() {
+    var keyword = document.getElementById("keyword").value.trim();
+    var resultDiv = document.getElementById("result");
+    var loadingIndicator = document.getElementById("loadingIndicator");
+    var errorDiv = document.getElementById("error");
+    
+    resultDiv.innerHTML = ""; // Clear previous results
+    errorDiv.textContent = ""; // Clear previous error
+    
+    if (!keyword) {
+      errorDiv.textContent = "Please enter a keyword.";
+      return;
+    }
+    
+    var apiKey = 'AIzaSyDsJTFseY3hCb2PrwlxzxzwCON0tX3ACfM'; // Replace with your actual YouTube API key
+    var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=' + encodeURIComponent(keyword) + '&key=' + apiKey;
+    
+    loadingIndicator.style.display = "block"; // Show loading indicator
+    
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        loadingIndicator.style.display = "none"; // Hide loading indicator
+        var items = data.items;
+        if (items.length === 0) {
+          resultDiv.textContent = "No trending topics found for the keyword '" + keyword + "'.";
+        } else {
+          resultDiv.innerHTML = "<p>Trending topics related to '" + keyword + "':</p>";
+          var ul = document.createElement("ul");
+          items.forEach(function(item) {
+            var title = item.snippet.title;
+            var videoId = item.id.videoId;
+            var li = document.createElement("li");
+            var a = document.createElement("a");
+            a.href = "https://www.youtube.com/watch?v=" + videoId;
+            a.target = "_blank";
+            a.textContent = title;
+            a.classList.add("trending-topic");
+            li.appendChild(a);
+            ul.appendChild(li);
+          });
+          resultDiv.appendChild(ul);
+        }
+      })
+      .catch(error => {
+        loadingIndicator.style.display = "none"; // Hide loading indicator
+        console.error('Error fetching data:', error);
+        errorDiv.textContent = "An error occurred while fetching trending topics.";
+      });
+  }
+  
+  function clearResults() {
+    document.getElementById("keyword").value = "";
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("error").textContent = "";
+  }
+</script>
+</body>
+</html>
