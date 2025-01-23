@@ -68,7 +68,7 @@
         var videoId = youtube_parser(youtubeUrl);
 
         if (videoId) {
-            var apiUrl = 'https://www.googleapis.com/youtube/v3/videos?id=' + videoId + '&key=AIzaSyDsJTFseY3hCb2PrwlxzxzwCON0tX3ACfM&part=snippet';
+            var apiUrl = 'https://www.googleapis.com/youtube/v3/videos?id=' + videoId + '&key=AIzaSyDsJTFseY3hPrwlxzxzwCON0tX3ACfM&part=snippet';
 
             fetch(apiUrl)
             .then(response => response.json())
