@@ -112,7 +112,7 @@
         async function getRelatedKeywords(phrases) {
             const similarKeywords = [];
             for (const phrase of phrases) {
-                const response = await fetch(`https://api.datamuse.com/words?ml=${phrase}&max=3`);
+                const response = await fetch(`https://api.use.com/words?ml=${phrase}&max=3`);
                 const data = await response.json();
                 if (data.length > 0) {
                     similarKeywords.push(...data.map(item => item.word));
